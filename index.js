@@ -1,4 +1,4 @@
-// server.js
+
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -13,7 +13,7 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
 
 // Logging middleware
 app.use((req, res, next) => {

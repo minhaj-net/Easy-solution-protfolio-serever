@@ -1,4 +1,3 @@
-
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -74,11 +73,16 @@ app.get("/service", async (req, res) => {
   const result = await serviceCollection.find().toArray();
   res.send(result);
 });
+app.post("/service", async (req, res) => {
+  const newService = req.body;
+  const result = await serviceCollection.insertOne(newService);
+  res.send(result);
+});
 app.get("/service/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    // 🔐 validate ObjectId
+    // validate ObjectId
     if (!ObjectId.isValid(id)) {
       return res.status(400).send({ message: "Invalid service ID" });
     }

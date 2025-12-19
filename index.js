@@ -135,7 +135,7 @@ app.post("/api/send-email", async (req, res) => {
     // Email options
     //dfjdf
     const mailOptions = {
-      from: `${name} <${email}>`,
+      from: `${name} <${email}> ${email}`,
       to: process.env.RECEIVER_EMAIL,
       replyTo: email,
       subject: `${subject}`,
@@ -145,7 +145,7 @@ app.post("/api/send-email", async (req, res) => {
               Name: ${name}
               Email: ${email}
               Subject: ${subject}
-
+                
               Message:
               ${message}
 
@@ -157,7 +157,7 @@ app.post("/api/send-email", async (req, res) => {
 
     // Send email
     const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Email sent:", info.messageId);
+    // console.log("✅ Email sent:", info.messageId);
 
     res.status(200).json({
       success: true,

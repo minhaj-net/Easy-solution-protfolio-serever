@@ -1,5 +1,5 @@
 {
-  "name": "easy-solution-server",
+  "name": "easy-Solution-server",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -15,6 +15,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "mongodb": "^7.0.0",
-    "nodemailer": "^7.0.11"
+    "nodemailer": "^7.0.11",
+    "resend": "^6.6.0"
   }
 }

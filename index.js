@@ -31,6 +31,7 @@ const client = new MongoClient(uri, {
 
 let contactCollection;
 let serviceCollection;
+let projectCollection;
 
 // Connect to MongoDB and initialize collection
 async function connectDB() {
@@ -39,6 +40,7 @@ async function connectDB() {
     const db = client.db("contactForm");
     contactCollection = db.collection("senderInfo");
     serviceCollection = db.collection("service");
+    projectCollection = db.collection("project");
     // await client.db("admin").command({ ping: 1 });
     console.log("✅ Connected to MongoDB");
   } catch (error) {
@@ -67,12 +69,41 @@ transporter.verify((error, success) => {
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
+//project related APIs
+app.get("/projects", async (req, res) => {
+  const result = await projectCollection.find().toArray();
+  res.send(result);
+});
 
 //service data insert
 app.get("/service", async (req, res) => {
   const result = await serviceCollection.find().toArray();
   res.send(result);
 });
+
+app.get("/project/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // validate ObjectId
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).send({ message: "Invalid service ID" });
+    }
+
+    const query = { _id: new ObjectId(id) };
+    const result = await projectCollection.findOne(query);
+
+    if (!result) {
+      return res.status(404).send({ message: "Service not found" });
+    }
+
+    res.status(200).send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "Failed to fetch service" });
+  }
+});
+// Service Related APIs
 app.post("/service", async (req, res) => {
   const newService = req.body;
   const result = await serviceCollection.insertOne(newService);
@@ -112,7 +143,6 @@ app.post("/api/send-email", async (req, res) => {
         message: "All fields are required (name, email, subject, message)",
       });
     }
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({
@@ -120,7 +150,6 @@ app.post("/api/send-email", async (req, res) => {
         message: "Invalid email address",
       });
     }
-
     // Save to MongoDB
     const dbResult = await contactCollection.insertOne({
       name,
@@ -135,7 +164,7 @@ app.post("/api/send-email", async (req, res) => {
     // Email options
     //dfjdf
     const mailOptions = {
-      from: `${name} <${email}> ${email}`,
+      from: `${name} ${process.env.RECEIVER_EMAIL}`,
       to: process.env.RECEIVER_EMAIL,
       replyTo: email,
       subject: `${subject}`,

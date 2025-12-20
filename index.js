@@ -7,7 +7,8 @@ const nodemailer = require("nodemailer");
 const app = express();
 const port = process.env.PORT || 5000;
 // MongoDB connection URI
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.iesbwy6.mongodb.net/?appName=Cluster0`;
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.iesbwy6.mongodb.net/?appName=Cluster0`;
+const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@easysolutions01.kion0l5.mongodb.net/?appName=easysolutions01`;
 
 // Middleware
 app.use(cors());
@@ -32,15 +33,15 @@ const client = new MongoClient(uri, {
 let contactCollection;
 let serviceCollection;
 let projectCollection;
-
 // Connect to MongoDB and initialize collection
 async function connectDB() {
   try {
-    // await client.connect();
+    await client.connect();
     const db = client.db("contactForm");
     contactCollection = db.collection("senderInfo");
     serviceCollection = db.collection("service");
     projectCollection = db.collection("project");
+    
     // await client.db("admin").command({ ping: 1 });
     console.log("✅ Connected to MongoDB");
   } catch (error) {
@@ -74,6 +75,7 @@ app.get("/projects", async (req, res) => {
   const result = await projectCollection.find().toArray();
   res.send(result);
 });
+
 
 //service data insert
 app.get("/service", async (req, res) => {
@@ -230,11 +232,22 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(port, () => {
-  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log("🚀 Email & MongoDB Backend Started");
-  console.log(`📡 Server running on: http://localhost:${port}`);
-  console.log(`📧 Email User: ${process.env.EMAIL_USER || "Not configured"}`);
-  console.log(`📬 Receiver: ${process.env.RECEIVER_EMAIL || "Not configured"}`);
-  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-});
+connectDB()
+  .then(() => {
+    app.listen(port, () => {
+      console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+      console.log("🚀 Email & MongoDB Backend Started");
+      console.log(`📡 Server running on: http://localhost:${port}`);
+      console.log(
+        `📧 Email User: ${process.env.EMAIL_USER || "Not configured"}`
+      );
+      console.log(
+        `📬 Receiver: ${process.env.RECEIVER_EMAIL || "Not configured"}`
+      );
+      console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    });
+  })
+  .catch((err) => {
+    console.error("❌ Failed to start server:", err);
+    process.exit(1);
+  });
